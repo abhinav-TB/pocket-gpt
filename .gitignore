@@ -1,0 +1,7 @@
+env
+.vscode
+*.exe
+*.o
+todo
+now.todo
+__pycache__
