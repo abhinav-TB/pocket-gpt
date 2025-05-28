@@ -1,7 +1,7 @@
 import re
 from collections import Counter, defaultdict
 import json
-from dataset import load_dataset
+from custom_datasets.wiki_dataset import load_dataset
 
 class BPETokenizer:
     def __init__(self, vocab_size=1000):

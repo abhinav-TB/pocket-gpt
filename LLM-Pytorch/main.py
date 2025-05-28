@@ -4,12 +4,12 @@ from torch.utils.data import DataLoader
 import argparse
 import os
 
-from gpt_mini import GPTMini
-from dataset import RealTextDataset
-from trainer import train
-from tokenizer import BPETokenizer
-from generator import generate
-from utils import set_seed
+from models.gpt_mini import GPTMini
+from custom_datasets.wiki_dataset import WikiDataset
+from utils.trainer import train
+from custom_tokenizers.bpe_tokenizer import BPETokenizer
+from utils.generator import generate
+from utils.utils import set_seed
 
 def main():
     parser = argparse.ArgumentParser(description="Train or generate text with GPTMini.")
@@ -30,14 +30,20 @@ def main():
     parser.add_argument("--seed", type=int, default=42,
                         help="Random seed for reproducibility.")
 
+    parser.add_argument("--tokenizer_path", type=str, default="bpe_tokenizer.json", help="Path to the tokenizer file.")
+
     args = parser.parse_args()
 
     set_seed(args.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    tokenizer = BPETokenizer(vocab_size = 1000)
+    tokenizer = BPETokenizer(vocab_size = 2000)
     vocab_size = tokenizer.vocab_size
+
+    if os.path.exists(args.tokenizer_path):
+        print(f"Loading tokenizer from {args.tokenizer_path}")
+        tokenizer = BPETokenizer.from_file(args.tokenizer_path)
 
     model = GPTMini(vocab_size).to(device)
 
@@ -47,7 +53,11 @@ def main():
 
     if args.mode == "train":
         print("Running in training mode.")
-        dataset = RealTextDataset(tokenizer, block_size=model.max_len, split='train') # Use model's max_len
+        tokenizer_train = False
+        if not args.tokenizer_path :
+            tokenizer_train = True
+
+        dataset = WikiDataset(tokenizer, block_size=model.max_len, split='train', train = tokenizer_train) # Use model's max_len
         loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
         optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
 
@@ -66,7 +76,11 @@ def main():
             print("Error: Model path is required for generation and must exist.")
             return
 
-        prompt_ids = tokenizer(args.prompt, return_tensors='pt')['input_ids'][0].to(device)
+        # prompt_ids = tokenizer(args.prompt, return_tensors='pt')['input_ids'][0].to(device)
+        prompt_ids = tokenizer.encode(args.prompt, add_special_tokens=False)
+        prompt_ids = torch.tensor(prompt_ids)
+        print(prompt_ids.shape)
+
 
         print(f"Generating text from prompt: '{args.prompt}'")
         generated_ids = generate(model, prompt_ids, max_len=args.max_gen_len, device=device)

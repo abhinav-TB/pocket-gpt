@@ -1,14 +1,16 @@
 from datasets import load_dataset
 from transformers import AutoTokenizer
 from torch.utils.data import Dataset, DataLoader
-from tokenizer import BPETokenizer  # Assuming you have a custom tokenizer module
+from custom_tokenizers.bpe_tokenizer import BPETokenizer 
 import torch
 
-class RealTextDataset(Dataset):
-    def __init__(self, tokenizer, block_size=128, split='train'):
+class WikiDataset(Dataset):
+    def __init__(self, tokenizer, block_size=128, split='train', train = False):
         dataset = load_dataset("wikitext", "wikitext-2-raw-v1", split=split)
         text = "\n\n".join(dataset["text"])
-        tokenizer.train(text)
+
+        if  train:
+            tokenizer.train(corpus_text=text)  # Train tokenizer if not already trained
         # tokens = tokenizer(text, return_tensors='pt', truncation=False)["input_ids"][0]
         tokens = tokenizer.encode(text, add_special_tokens=False)
 
@@ -30,7 +32,7 @@ if __name__ == "__main__":
     # Example usage if run directly
     # tokenizer = AutoTokenizer.from_pretrained("gpt2")
     tokenizer = BPETokenizer(vocab_size=10000)  # Adjust vocab_size as needed
-    dataset = RealTextDataset(tokenizer, block_size=128, split='train')
+    dataset = WikiDataset(tokenizer, block_size=128, split='train')
     loader = DataLoader(dataset, batch_size=16, shuffle=True)
 
     print(f"Number of examples in dataset: {len(dataset)}")

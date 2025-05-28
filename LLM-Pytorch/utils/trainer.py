@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from gpt_mini import GPTMini
-from dataset import RealTextDataset
+from models.gpt_mini import GPTMini
+from custom_datasets.wiki_dataset import WikiDataset
 from transformers import AutoTokenizer
 from torch.utils.data import DataLoader
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     vocab_size = tokenizer.vocab_size
 
     model = GPTMini(vocab_size).to(device)
-    dataset = RealTextDataset(tokenizer, block_size=128, split='train')
+    dataset = WikiDataset(tokenizer, block_size=128, split='train')
     loader = DataLoader(dataset, batch_size=4, shuffle=True) # Use smaller batch size for example
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
