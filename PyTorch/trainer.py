@@ -1,5 +1,9 @@
 import torch
 import torch.nn as nn
+from models.gpt_mini import GPTMini
+from data.dataset import RealTextDataset
+from transformers import AutoTokenizer
+from torch.utils.data import DataLoader
 
 def train(model, data_loader, optimizer, device):
     """
@@ -36,10 +40,6 @@ def train(model, data_loader, optimizer, device):
 
 if __name__ == "__main__":
     # Example usage (requires models/gpt_mini.py and data/dataset.py)
-    from models.gpt_mini import GPTMini
-    from data.dataset import RealTextDataset
-    from transformers import AutoTokenizer
-    from torch.utils.data import DataLoader
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

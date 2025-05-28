@@ -7,7 +7,9 @@ class RealTextDataset(Dataset):
     def __init__(self, tokenizer, block_size=128, split='train'):
         dataset = load_dataset("wikitext", "wikitext-2-raw-v1", split=split)
         text = "\n\n".join(dataset["text"])
-        tokens = tokenizer(text, return_tensors='pt', truncation=False)["input_ids"][0]
+        tokenizer.train(text)
+        # tokens = tokenizer(text, return_tensors='pt', truncation=False)["input_ids"][0]
+        tokens = tokenizer.encode(text, add_special_tokens=False)
 
         self.inputs = []
         # Adjust loop to avoid indexing out of bounds
