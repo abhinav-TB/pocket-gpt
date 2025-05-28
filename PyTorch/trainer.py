@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from models.gpt_mini import GPTMini
-from data.dataset import RealTextDataset
+from gpt_mini import GPTMini
+from dataset import RealTextDataset
 from transformers import AutoTokenizer
 from torch.utils.data import DataLoader
 

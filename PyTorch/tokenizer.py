@@ -1,6 +1,7 @@
 import re
 from collections import Counter, defaultdict
 import json
+from dataset import load_dataset
 
 class BPETokenizer:
     def __init__(self, vocab_size=1000):
@@ -267,25 +268,28 @@ class BPETokenizer:
 
 # Example usage:
 if __name__ == '__main__':
-    corpus = (
-        "This is a sample corpus for training a BPE tokenizer. "
-        "BPE is a subword tokenization algorithm. "
-        "It iteratively replaces the most frequent pair of bytes "
-        "in a sequence with a single, unused byte. "
-        "hello world how are you doing today hello again"
-    )
+    # corpus = (
+    #     "This is a sample corpus for training a BPE tokenizer. "
+    #     "BPE is a subword tokenization algorithm. "
+    #     "It iteratively replaces the most frequent pair of bytes "
+    #     "in a sequence with a single, unused byte. "
+    #     "hello world how are you doing today hello again"
+    # )
+
+    dataset = load_dataset("wikitext", "wikitext-2-raw-v1", split='train')
+    corpus = "\n\n".join(dataset["text"])  # Join all text into a single string
     
     # --- Training ---
     print("Training tokenizer...")
-    tokenizer = BPETokenizer(vocab_size=1000) # Smaller vocab for quick example
-    tokenizer.train(corpus)
+    tokenizer = BPETokenizer(vocab_size=2000) # Smaller vocab for quick example
+    # tokenizer.train(corpus)
     
-    # --- Save the tokenizer ---
-    tokenizer.save_tokenizer("bpe_custom_tokenizer.json")
+    # # --- Save the tokenizer ---
+    # tokenizer.save_tokenizer("bpe_custom_tokenizer.json")
     
     # --- Load the tokenizer ---
     print("\nLoading tokenizer from file...")
-    loaded_tokenizer = BPETokenizer.from_file("bpe_custom_tokenizer.json")
+    loaded_tokenizer = BPETokenizer.from_file("bpe_tokenizer_wiki_2000.json")
 
     # --- Test Encoding and Decoding ---
     test_sentence = "hello world this is a test of the BPE algorithm"
@@ -294,15 +298,10 @@ if __name__ == '__main__':
     encoded_ids = loaded_tokenizer.encode(test_sentence, add_special_tokens=True)
     print(f"Encoded IDs: {encoded_ids}")
 
-    decoded_text = loaded_tokenizer.decode(encoded_ids, skip_special_tokens=True)
+    decoded_text = loaded_tokenizer.decode(encoded_ids, skip_special_tokens=False)
     print(f"Decoded Text (from loaded): {decoded_text}")
 
-    # Test with unknown words/chars if any
-    unknown_test = "zzzyyyxxx newwords"
-    encoded_unknown = loaded_tokenizer.encode(unknown_test)
-    print(f"\nEncoded Unknown: {encoded_unknown}")
-    decoded_unknown = loaded_tokenizer.decode(encoded_unknown)
-    print(f"Decoded Unknown: {decoded_unknown}")
+
 
     print("\nVocabulary sample (first 20):")
     for i, (token, token_id) in enumerate(loaded_tokenizer.vocab.items()):

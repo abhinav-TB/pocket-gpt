@@ -1,6 +1,7 @@
 from datasets import load_dataset
 from transformers import AutoTokenizer
 from torch.utils.data import Dataset, DataLoader
+from tokenizer import BPETokenizer  # Assuming you have a custom tokenizer module
 import torch
 
 class RealTextDataset(Dataset):
@@ -21,11 +22,14 @@ class RealTextDataset(Dataset):
 
     def __getitem__(self, idx):
         data = self.inputs[idx]
-        return data[:-1], data[1:]
+        input_ids = torch.tensor(data[:-1])
+        target_ids = torch.tensor(data[1:])
+        return input_ids, target_ids
 
 if __name__ == "__main__":
     # Example usage if run directly
-    tokenizer = AutoTokenizer.from_pretrained("gpt2")
+    # tokenizer = AutoTokenizer.from_pretrained("gpt2")
+    tokenizer = BPETokenizer(vocab_size=10000)  # Adjust vocab_size as needed
     dataset = RealTextDataset(tokenizer, block_size=128, split='train')
     loader = DataLoader(dataset, batch_size=16, shuffle=True)
 

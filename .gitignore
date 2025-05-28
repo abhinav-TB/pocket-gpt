@@ -5,3 +5,6 @@ env
 todo
 now.todo
 __pycache__
+
+*.pth
+*.json

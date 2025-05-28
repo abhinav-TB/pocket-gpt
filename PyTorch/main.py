@@ -7,7 +7,7 @@ import os
 from gpt_mini import GPTMini
 from dataset import RealTextDataset
 from trainer import train
-from tokenizer import BPE_Tokenizer
+from tokenizer import BPETokenizer
 from generator import generate
 from utils import set_seed
 
@@ -36,7 +36,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    tokenizer = BPE_Tokenizer(vocab_size = 1000)
+    tokenizer = BPETokenizer(vocab_size = 1000)
     vocab_size = tokenizer.vocab_size
 
     model = GPTMini(vocab_size).to(device)
